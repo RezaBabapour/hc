@@ -15,4 +15,4 @@ RUN npm ci --only=production
 # Bundle app source
 COPY . .
 
-CMD [ "node", "bin/app.js" ]
+CMD [ "node", "src/app.js" ]
