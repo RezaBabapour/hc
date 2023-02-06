@@ -1,10 +1,5 @@
-################################################################
 # API and dashboard configuration
-################################################################
 api:
-  # Dashboard
-  #
-  #
   dashboard: true
   insecure: true
     #  middlewares:
@@ -16,35 +11,27 @@ api:
     #        users:
     #          - admin:$apr1$h9n28mxd$bp6Ng1aF2LbxbQ4WLdzlR1
     
-################################################################
 # Docker configuration backend
-################################################################
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     swarmMode: true
     swarmModeRefreshSeconds: 30
-  #file:
-  #  directory: /etc/traefik/sites
-  #  watch: true
-################################################################
+    exposedByDefault: false
+
 # Traefik Logging
-################################################################
+accessLog: {}
 log:
   level: DEBUG 
 
-################################################################
 # Entrypoint
-################################################################
 entryPoints:
   web:
     address: ":80"
   websecure:
     address: ":443"
 
-################################################################
 # Challenge HTTP
-################################################################
 certificatesResolvers:
   myresolver:
     acme:
@@ -52,4 +39,3 @@ certificatesResolvers:
       storage: /letsencrypt/acme.json
       httpChallenge:
         entryPoint: web
-

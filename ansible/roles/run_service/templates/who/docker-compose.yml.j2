@@ -9,13 +9,16 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.who.rule=Host(`who1.powerusers.ir`)"
+        - "traefik.http.routers.who.service=who"
+        - "traefik.http.services.who.loadbalancer.server.port=8080"
+        - "traefik.http.routers.who.entrypoints=websecure"
+        - "traefik.http.routers.who.tls.certresolver=myresolver"
+    networks:
+      - hc_net
 
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.who.rule=Host(`who1.powerusers.ir`)"
-      - "traefik.http.routers.who.service=who"
-      - "traefik.http.services.who.loadbalancer.server.port=8080"
-      - "traefik.http.routers.who.entrypoints=websecure"
-      - "traefik.http.routers.who.tls.certresolver=myresolver"
-
-
+networks:
+  hc_net:
+    external: true
