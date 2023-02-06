@@ -1,0 +1,32 @@
+---
+- name: Make sure compose_path exist
+  file:
+    path: "{{ compose_path }}/{{ service }}"
+    state: directory
+
+- name: "Ensure directory structure exists for service: {{ service }}"
+  file:
+    path: '{{ compose_path }}/{{ service }}'
+    state: directory
+  with_filetree: '../templates/{{ service }}'
+  when: item.state == 'directory'
+
+- name: "Ensure files are populated from templates for service: {{ service }}"
+  template:
+    src: '{{ item.src }}'
+    dest: "{{ compose_path }}/{{ service }}/{{ item.path | regex_replace('.j2$', '') }}"
+  with_filetree: '../templates/{{ service }}'
+  when: item.state == 'file'
+
+- name: "Deploy service {{ service }} on swarm"
+  shell:
+    chdir: "{{ compose_path }}/{{ service }}"
+    executable: /bin/bash
+    cmd: |
+      docker stack deploy --compose-file docker-compose.yml  {{ service }}
+  register: run_status
+
+- debug:
+    var: run_status.stdout_lines
+- debug:
+    var: run_status.stderr_lines

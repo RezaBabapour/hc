@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+
+  traefik:
+    image: traefik:v2.9
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - /core/db/certs/letsencrypt:/letsencrypt:rw
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    deploy:
+      mode: global 
+      placement:
+        constraints:
+          - node.role == manager
