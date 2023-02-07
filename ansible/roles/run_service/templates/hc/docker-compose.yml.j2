@@ -1,0 +1,83 @@
+version: "3.9"
+services:
+  
+  account:
+    image: rezababapour/hc-account
+    environment:
+      - HOST=who1.powerusers.ir
+      - PORT=2000
+      - AUTH_SERVER_ADDR=auth
+      - AUTH_SERVER_PORT=2000
+      - MONGO_SERVER_ADDR=mongodb
+      - MONGO_SERVER_PORT=27017
+      - DB_USER=hc
+      - DB_PASS=hc
+      - CALLBACK_URL=who1.powerusers.ir
+      - PAYMENT_URL=
+      - MERCHANT_ID=
+
+    deploy:
+      restart_policy:
+        condition: on-failure
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.hc-account.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/accountico`)"
+        - "traefik.http.routers.hc-account.service=hc-account"
+        - "traefik.http.services.hc-account.loadbalancer.server.port=2000"
+        - "traefik.http.routers.hc-account.entrypoints=websecure"
+        - "traefik.http.routers.hc-account.tls.certresolver=myresolver"
+        - "traefik.http.services.hc-account.loadbalancer.healthcheck.path=/accountico/heartbeat"
+        - "traefik.http.services.hc-account.loadbalancer.healthcheck.interval=10s"
+        - "traefik.http.services.hc-account.loadbalancer.healthcheck.timeout=5s"
+        - "traefik.http.services.hc-account.loadbalancer.healthcheck.scheme=http"
+    networks:
+      - hc_net
+
+  auth:
+    image: rezababapour/hc-auth
+    environment:
+      - AUTHENTIQ_DB_HOST=mongodb
+      - AUTHENTIQ_DB_NAME=hc
+      - AUTHENTIQ_DB_PORT=27017
+      - AUTHENTIQ_DB_USERNAME=hc
+      - AUTHENTIQ_DB_PASSWORD=hc
+      - AUTHENTIQ_ADMIN_USERNAME=admin@authentiq.com
+      - AUTHENTIQ_ADMIN_PASSWORD=admin1234
+
+    deploy:
+      restart_policy:
+        condition: on-failure
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.hc-auth.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/authentiq`)"
+        - "traefik.http.routers.hc-auth.service=hc-auth"
+        - "traefik.http.services.hc-auth.loadbalancer.server.port=2000"
+        - "traefik.http.routers.hc-auth.entrypoints=websecure"
+        - "traefik.http.routers.hc-auth.tls.certresolver=myresolver"
+    networks:
+      - hc_net
+
+  mongodb:
+    image: mongo:4.4.18 
+    command: mongod --setParameter maxSessions=4000000 --maxConns 4000000
+    environment:
+      - MONGODB_PORT_NUMBER=27017
+      - MONGO_INITDB_ROOT_USERNAME=hc
+      - MONGO_INITDB_ROOT_PASSWORD=hc
+      - MONGO_INITDB_DATABASE=hc
+    volumes:
+      - /core/db/hc-mongo:/data/db
+    deploy:
+        placement:
+            constraints:
+                - node.hostname == test
+    networks:
+      - hc_net
+
+networks:
+  hc_net:
+    external: true
