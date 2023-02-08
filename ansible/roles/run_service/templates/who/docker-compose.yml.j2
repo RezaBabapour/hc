@@ -11,7 +11,7 @@ services:
       replicas: 3
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.who.rule=Host(`who1.powerusers.ir`)"
+        - "traefik.http.routers.who.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/who`)"
         - "traefik.http.routers.who.service=who"
         - "traefik.http.services.who.loadbalancer.server.port=8080"
         - "traefik.http.routers.who.entrypoints=websecure"
