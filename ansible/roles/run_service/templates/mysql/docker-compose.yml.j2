@@ -1,0 +1,52 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: hc
+      MYSQL_DATABASE: hc
+      MYSQL_USER: hc
+      MYSQL_PASSWORD: hc
+    deploy:
+      mode: replicated
+      replicas: 1
+    networks:
+      - hc_net
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.0
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: hc
+      PMA_ABSOLUTE_URI: https://who1.powerusers.ir/phpmyadmin
+    deploy:
+      mode: replicated
+      replicas: 1
+
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.phpmyadmin.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/phpmyadmin`)"
+
+        - "traefik.http.middlewares.phpmyadmin-replace.replacepathregex.regex=^/phpmyadmin/(.*)"
+        - "traefik.http.middlewares.phpmyadmin-replace.replacepathregex.replacement=/$$1"
+        - "traefik.http.middlewares.phpmyadmin-redirect.redirectregex.regex=^(.*)/phpmyadmin$$"
+        - "traefik.http.middlewares.phpmyadmin-redirect.redirectregex.replacement=$$1/phpmyadmin/"
+
+        #- "traefik.http.middlewares.phpmyadmin-path.stripprefix.prefixes=/phpmyadmin"
+        #- "traefik.http.middlewares.phpmyadmin-path.stripprefix.forceSlash=false"
+
+        #- "traefik.http.middlewares.phpmyadmin-path.replacepathregex.regex=/phpmyadmin(.*)"
+        #- "traefik.http.middlewares.phpmyadmin-path.replacepathregex.replacement=$$1"
+
+        - "traefik.http.routers.phpmyadmin.middlewares=phpmyadmin-replace, phpmyadmin-redirect"
+        - "traefik.http.routers.phpmyadmin.service=phpmyadmin"
+        - "traefik.http.services.phpmyadmin.loadbalancer.server.port=80"
+        - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+        - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver"
+    networks:
+      - hc_net
+
+networks:
+  hc_net:
+    external: true
