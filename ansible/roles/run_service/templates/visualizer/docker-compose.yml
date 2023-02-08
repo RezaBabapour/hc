@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  manager:
+    environment:
+      - VISUALIZER_TYPE=manager
+    image: yandeu/visualizer:dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - hc_net
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.visualizer.rule=Host(`who1.powerusers.ir`)"
+          #- "traefik.http.routers.visualizer.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/visualizer`)"
+
+          #- "traefik.http.middlewares.visualizer-replace.replacepathregex.regex=^/visualizer/(.*)"
+          #- "traefik.http.middlewares.visualizer-replace.replacepathregex.replacement=/$$1"
+          #- "traefik.http.middlewares.visualizer-redirect.redirectregex.regex=^(.*)/visualizer$$"
+          #- "traefik.http.middlewares.visualizer-redirect.redirectregex.replacement=$$1/visualizer/"
+          #- "traefik.http.middlewares.visualizer-redirect.redirectregex.permanent=true"
+
+          #- "traefik.http.routers.visualizer.middlewares=visualizer-replace, visualizer-redirect"
+        - "traefik.http.routers.visualizer.service=visualizer"
+        - "traefik.http.services.visualizer.loadbalancer.server.port=3500"
+        - "traefik.http.routers.visualizer.entrypoints=visualizer"
+          #- "traefik.http.routers.visualizer.tls.certresolver=myresolver"
+    labels:
+      - visualizer.manager
+  agent:
+    environment:
+      - VISUALIZER_TYPE=agent
+    image: yandeu/visualizer:dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - hc_net 
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
+    labels:
+      - visualizer.agent
+networks:
+  hc_net:
+    external: true
