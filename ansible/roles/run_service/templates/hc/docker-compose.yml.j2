@@ -23,11 +23,20 @@ services:
       replicas: 1
       labels:
         - "traefik.enable=true"
+        - "traefik.http.middlewares.hc-redirectscheme.redirectscheme.scheme=https"
+        - "traefik.http.routers.hc-account.middlewares=hc-redirectscheme"
+        
+        - "traefik.http.routers.hc-account.service=hc-account-secure"
         - "traefik.http.routers.hc-account.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/accountico`)"
-        - "traefik.http.routers.hc-account.service=hc-account"
         - "traefik.http.services.hc-account.loadbalancer.server.port=2000"
-        - "traefik.http.routers.hc-account.entrypoints=websecure"
-        - "traefik.http.routers.hc-account.tls.certresolver=myresolver"
+
+        - "traefik.http.routers.hc-account-secure.service=hc-account-secure"
+        - "traefik.http.routers.hc-account-secure.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/accountico`)"
+        - "traefik.http.routers.hc-account-secure.tls.certresolver=myresolver"
+        - "traefik.http.routers.hc-account-secure.tls=true"
+        - "traefik.http.routers.hc-account-secure.entrypoints=websecure"
+        - "traefik.http.services.hc-account-secure.loadbalancer.server.port=2000"
+
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.path=/accountico/heartbeat"
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.interval=10s"
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.timeout=5s"
