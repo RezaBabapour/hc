@@ -26,12 +26,15 @@ services:
         constraints: [node.role == manager]
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.visualizer.rule=Host(`who1.powerusers.ir`)"
-        - "traefik.http.middlewares.visualizer-whitelist.ipwhitelist.sourcerange=5.78.43.87/32"
-        - "traefik.http.routers.visualizer.middlewares=visualizer-whitelist"
+        - "traefik.http.routers.visualizer.rule=Host(`visual.powerusers.ir`)"
+          #- "traefik.http.middlewares.visualizer-whitelist.ipwhitelist.sourcerange=5.78.43.87/32"
+        - "traefik.http.middlewares.visualizer-basicauth.basicauth.users=hc:$$2y$$05$$QyLWWJoojMQQoNYMi1FgOenHJezo3bmMrU08D/tKh2CVrcYdrBwJq"
+        - "traefik.http.routers.visualizer.middlewares=visualizer-basicauth"
         - "traefik.http.routers.visualizer.service=visualizer"
         - "traefik.http.services.visualizer.loadbalancer.server.port=3500"
-        - "traefik.http.routers.visualizer.entrypoints=visualizer"
+        - "traefik.http.routers.visualizer.entrypoints=websecure"
+        - "traefik.http.routers.visualizer.tls.certresolver=myresolver"
+
     labels:
       - visualizer.manager
   agent:
