@@ -15,6 +15,14 @@ services:
       - PAYMENT_URL=
       - MERCHANT_ID=
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/accountico/heartbeat"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+
     deploy:
       restart_policy:
         condition: on-failure
@@ -37,7 +45,7 @@ services:
         - "traefik.http.services.hc-account-secure.loadbalancer.server.port=5000"
 
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.path=/accountico/heartbeat"
-        - "traefik.http.services.hc-account.loadbalancer.healthcheck.interval=10s"
+        - "traefik.http.services.hc-account.loadbalancer.healthcheck.interval=30s"
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.timeout=5s"
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.scheme=http"
     networks:
@@ -55,6 +63,13 @@ services:
       - AUTHENTIQ_ADMIN_USERNAME=admin@authentiq.com
       - AUTHENTIQ_ADMIN_PASSWORD=admin1234
 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2000/authentiq/v1/heartbeat"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
     deploy:
       restart_policy:
         condition: on-failure
@@ -67,6 +82,12 @@ services:
         - "traefik.http.services.hc-auth.loadbalancer.server.port=2000"
         - "traefik.http.routers.hc-auth.entrypoints=websecure"
         - "traefik.http.routers.hc-auth.tls.certresolver=myresolver"
+
+        - "traefik.http.services.hc-auth.loadbalancer.healthcheck.path=/authentiq/v1/heartbeat"
+        - "traefik.http.services.hc-auth.loadbalancer.healthcheck.interval=30s"
+        - "traefik.http.services.hc-auth.loadbalancer.healthcheck.timeout=5s"
+        - "traefik.http.services.hc-auth.loadbalancer.healthcheck.scheme=http"
+
     networks:
       - hc_net
 
