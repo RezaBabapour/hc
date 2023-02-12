@@ -5,7 +5,6 @@ services:
     image: rezababapour/hc-account
     environment:
       - HOST=who1.powerusers.ir
-      - PORT=2000
       - AUTH_SERVER_ADDR=auth
       - AUTH_SERVER_PORT=2000
       - MONGO_SERVER_ADDR=mongodb
@@ -28,14 +27,14 @@ services:
         
         - "traefik.http.routers.hc-account.service=hc-account-secure"
         - "traefik.http.routers.hc-account.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/accountico`)"
-        - "traefik.http.services.hc-account.loadbalancer.server.port=2000"
+        - "traefik.http.services.hc-account.loadbalancer.server.port=5000"
 
         - "traefik.http.routers.hc-account-secure.service=hc-account-secure"
         - "traefik.http.routers.hc-account-secure.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/accountico`)"
         - "traefik.http.routers.hc-account-secure.tls.certresolver=myresolver"
         - "traefik.http.routers.hc-account-secure.tls=true"
         - "traefik.http.routers.hc-account-secure.entrypoints=websecure"
-        - "traefik.http.services.hc-account-secure.loadbalancer.server.port=2000"
+        - "traefik.http.services.hc-account-secure.loadbalancer.server.port=5000"
 
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.path=/accountico/heartbeat"
         - "traefik.http.services.hc-account.loadbalancer.healthcheck.interval=10s"
@@ -48,11 +47,11 @@ services:
     image: rezababapour/hc-auth
     environment:
       - AUTHENTIQ_DB_HOST=mongodb
-      - AUTHENTIQ_DB_NAME=hc
-      - AUTHENTIQ_PORT=2000
+      - AUTHENTIQ_DB_NAME=authentiq
       - AUTHENTIQ_DB_PORT=27017
       - AUTHENTIQ_DB_USERNAME=hc
       - AUTHENTIQ_DB_PASSWORD=hc
+      - AUTHENTIQ_PORT=2000
       - AUTHENTIQ_ADMIN_USERNAME=admin@authentiq.com
       - AUTHENTIQ_ADMIN_PASSWORD=admin1234
 
@@ -78,7 +77,6 @@ services:
       - MONGODB_PORT_NUMBER=27017
       - MONGO_INITDB_ROOT_USERNAME=hc
       - MONGO_INITDB_ROOT_PASSWORD=hc
-      - MONGO_INITDB_DATABASE=hc
     volumes:
       - /core/db/hc-mongo:/data/db
     deploy:
