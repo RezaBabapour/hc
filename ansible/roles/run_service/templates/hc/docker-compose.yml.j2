@@ -24,10 +24,13 @@ services:
 
 
     deploy:
+      placement:
+        constraints:
+          - node.role == worker
+
       restart_policy:
         condition: on-failure
-      mode: replicated
-      replicas: 1
+      mode: global 
       labels:
         - "traefik.enable=true"
         - "traefik.http.middlewares.hc-redirectscheme.redirectscheme.scheme=https"
@@ -71,10 +74,15 @@ services:
       start_period: 40s
 
     deploy:
+      placement:
+        constraints:
+          - node.role == worker
+
       restart_policy:
         condition: on-failure
-      mode: replicated
-      replicas: 1
+      #mode: replicated
+      mode: global 
+      #replicas: 1
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.hc-auth.rule=Host(`who1.powerusers.ir`) && PathPrefix(`/authentiq`)"
