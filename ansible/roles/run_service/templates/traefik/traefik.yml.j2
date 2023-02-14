@@ -20,10 +20,18 @@ providers:
     exposedByDefault: false
 
 # Traefik Logging
-#accessLog: {}
+accessLog: 
+  format: json
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: redact
+        X-Forwarded-For: keep
+        X-Real-Ip: keep
 log:
   level: DEBUG 
-
 # Entrypoint
 entryPoints:
   web:
